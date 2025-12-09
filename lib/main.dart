@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'pages/home_page.dart';
+import 'services/notification_service.dart';
 
-void main() {
-  runApp(const AppKillBills());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializa Supabase
+  await Supabase.initialize(
+    url: 'YOUR_SUPABASE_URL', // Substituir com sua URL
+    anonKey: 'YOUR_SUPABASE_ANON_KEY', // Substituir com sua chave
+  );
+
+  // Inicializa notificações
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+  await notificationService.requestPermission();
+
+  runApp(
+    const ProviderScope(
+      child: AppKillBills(),
+    ),
+  );
 }
 
 class AppKillBills extends StatelessWidget {
