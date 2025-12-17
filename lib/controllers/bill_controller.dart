@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/bill.dart';
 import '../repositories/bill_repository.dart';
+import 'category_controller.dart';
 
 part 'bill_controller.g.dart';
 
@@ -31,6 +32,10 @@ class BillController extends _$BillController {
     state = await AsyncValue.guard(() async {
       final repository = ref.read(billRepositoryProvider);
       await repository.create(bill);
+      // Invalida o provider de bills por categoria para forçar refresh
+      ref.invalidate(billsByCategoryProvider);
+      // Invalida a contagem de bills por categoria
+      ref.invalidate(categoryBillCountProvider);
       return await _fetchBills();
     });
   }
@@ -41,6 +46,10 @@ class BillController extends _$BillController {
     state = await AsyncValue.guard(() async {
       final repository = ref.read(billRepositoryProvider);
       await repository.update(id, bill);
+      // Invalida o provider de bills por categoria para forçar refresh
+      ref.invalidate(billsByCategoryProvider);
+      // Invalida a contagem de bills por categoria
+      ref.invalidate(categoryBillCountProvider);
       return await _fetchBills();
     });
   }
@@ -51,6 +60,10 @@ class BillController extends _$BillController {
     state = await AsyncValue.guard(() async {
       final repository = ref.read(billRepositoryProvider);
       await repository.delete(id);
+      // Invalida o provider de bills por categoria para forçar refresh
+      ref.invalidate(billsByCategoryProvider);
+      // Invalida a contagem de bills por categoria
+      ref.invalidate(categoryBillCountProvider);
       return await _fetchBills();
     });
   }
@@ -61,6 +74,10 @@ class BillController extends _$BillController {
     state = await AsyncValue.guard(() async {
       final repository = ref.read(billRepositoryProvider);
       await repository.togglePaid(id, isPaid);
+      // Invalida o provider de bills por categoria para forçar refresh
+      ref.invalidate(billsByCategoryProvider);
+      // Invalida a contagem de bills por categoria
+      ref.invalidate(categoryBillCountProvider);
       return await _fetchBills();
     });
   }

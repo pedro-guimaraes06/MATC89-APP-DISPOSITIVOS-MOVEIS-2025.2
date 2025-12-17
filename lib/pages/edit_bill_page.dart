@@ -4,23 +4,36 @@ import '../controllers/bill_controller.dart';
 import '../models/bill.dart';
 import '../services/notification_service.dart';
 
-// Página para adicionar conta (nova versão com Riverpod)
-class AddBillPageNew extends ConsumerStatefulWidget {
-  final String categoryId;
+// Página para editar conta existente
+class EditBillPage extends ConsumerStatefulWidget {
+  final Bill bill;
 
-  const AddBillPageNew({super.key, required this.categoryId});
+  const EditBillPage({super.key, required this.bill});
 
   @override
-  ConsumerState<AddBillPageNew> createState() => _AddBillPageNewState();
+  ConsumerState<EditBillPage> createState() => _EditBillPageState();
 }
 
-class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
+class _EditBillPageState extends ConsumerState<EditBillPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _valueController = TextEditingController();
-  final _dueDayController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _valueController;
+  late final TextEditingController _dueDayController;
 
   bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa os controllers com os dados da conta existente
+    _nameController = TextEditingController(text: widget.bill.name);
+    _valueController = TextEditingController(
+      text: widget.bill.value.toStringAsFixed(2),
+    );
+    _dueDayController = TextEditingController(
+      text: widget.bill.dueDay.toString(),
+    );
+  }
 
   @override
   void dispose() {
@@ -30,28 +43,32 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
     super.dispose();
   }
 
-  Future<void> _saveBill() async {
+  Future<void> _updateBill() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
 
-    final bill = Bill(
+    final updatedBill = Bill(
+      id: widget.bill.id,
       name: _nameController.text.trim(),
       value: double.parse(_valueController.text.replaceAll(',', '.')),
       dueDay: int.parse(_dueDayController.text),
-      categoryId: widget.categoryId,
+      categoryId: widget.bill.categoryId,
+      isPaid: widget.bill.isPaid,
+      createdAt: widget.bill.createdAt,
     );
 
     try {
-      await ref.read(billControllerProvider.notifier).addBill(bill);
-      
+      await ref.read(billControllerProvider.notifier)
+          .updateBill(widget.bill.id!, updatedBill);
+
       // Mostra notificação de sucesso
       try {
         final notificationService = ref.read(notificationServiceProvider);
         await notificationService.showSuccessNotification(
-          'Conta "${bill.name}" adicionada com sucesso!',
+          'Conta "${updatedBill.name}" atualizada com sucesso!',
         );
-        debugPrint('✅ Notificação enviada com sucesso');
+        debugPrint('✅ Notificação de atualização enviada com sucesso');
       } catch (notificationError) {
         debugPrint('⚠️ Erro ao enviar notificação: $notificationError');
         // Continua mesmo se a notificação falhar
@@ -61,7 +78,7 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
         // Mostra também um SnackBar como fallback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Conta "${bill.name}" adicionada com sucesso!'),
+            content: Text('Conta "${updatedBill.name}" atualizada com sucesso!'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
           ),
@@ -69,10 +86,10 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      debugPrint('❌ Erro ao salvar conta: $e');
+      debugPrint('❌ Erro ao atualizar conta: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar: $e')),
+          SnackBar(content: Text('Erro ao atualizar: $e')),
         );
       }
     } finally {
@@ -84,8 +101,8 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adicionar Conta'),
-        backgroundColor: Colors.red,
+        title: const Text('Editar Conta'),
+        backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -156,9 +173,9 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
               const SizedBox(height: 24),
 
               ElevatedButton(
-                onPressed: _isSaving ? null : _saveBill,
+                onPressed: _isSaving ? null : _updateBill,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -172,7 +189,7 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
                         ),
                       )
                     : const Text(
-                        'Salvar Conta',
+                        'Salvar Alterações',
                         style: TextStyle(fontSize: 16),
                       ),
               ),
@@ -183,3 +200,4 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
     );
   }
 }
+

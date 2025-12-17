@@ -14,10 +14,15 @@ class NotificationService {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const initSettings = InitializationSettings(android: androidSettings);
     
-    await _notifications.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: _onNotificationTap,
-    );
+    try {
+      await _notifications.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: _onNotificationTap,
+      );
+      debugPrint('✅ NotificationService inicializado com sucesso');
+    } catch (e) {
+      debugPrint('❌ Erro ao inicializar NotificationService: $e');
+    }
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -31,9 +36,16 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>();
     
     if (plugin != null) {
-      final granted = await plugin.requestNotificationsPermission();
-      return granted ?? false;
+      try {
+        final granted = await plugin.requestNotificationsPermission();
+        debugPrint('📱 Permissão de notificações: ${granted == true ? "CONCEDIDA ✅" : "NEGADA ❌"}');
+        return granted ?? false;
+      } catch (e) {
+        debugPrint('❌ Erro ao solicitar permissão de notificações: $e');
+        return false;
+      }
     }
+    debugPrint('📱 Plugin Android não disponível, assumindo permissão concedida');
     return true;
   }
 
@@ -44,18 +56,24 @@ class NotificationService {
     required String body,
     String? payload,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
-      'bills_channel',
-      'Bills Notifications',
-      channelDescription: 'Notificações sobre contas a pagar',
-      importance: Importance.high,
-      priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
-    );
+    try {
+      const androidDetails = AndroidNotificationDetails(
+        'bills_channel',
+        'Bills Notifications',
+        channelDescription: 'Notificações sobre contas a pagar',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
 
-    const details = NotificationDetails(android: androidDetails);
+      const details = NotificationDetails(android: androidDetails);
 
-    await _notifications.show(id, title, body, details, payload: payload);
+      await _notifications.show(id, title, body, details, payload: payload);
+      debugPrint('🔔 Notificação enviada: $title - $body');
+    } catch (e) {
+      debugPrint('❌ Erro ao enviar notificação: $e');
+      rethrow;
+    }
   }
 
   // Notificação de lembrete de conta

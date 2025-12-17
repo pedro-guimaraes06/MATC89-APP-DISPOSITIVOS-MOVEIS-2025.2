@@ -19,8 +19,12 @@ void main() async {
   await notificationService.requestPermission();
 
   runApp(
-    const ProviderScope(
-      child: AppKillBills(),
+    ProviderScope(
+      overrides: [
+        // Usa a instância inicializada do NotificationService
+        notificationServiceProvider.overrideWithValue(notificationService),
+      ],
+      child: const AppKillBills(),
     ),
   );
 }

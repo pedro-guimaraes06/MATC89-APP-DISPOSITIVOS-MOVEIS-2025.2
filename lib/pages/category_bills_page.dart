@@ -4,6 +4,7 @@ import '../controllers/bill_controller.dart';
 import '../models/category.dart';
 import '../models/bill.dart';
 import 'add_bill_page_new.dart';
+import 'edit_bill_page.dart';
 
 // Página que mostra todas as contas de uma categoria específica (demonstra relação 1:N)
 class CategoryBillsPage extends ConsumerWidget {
@@ -77,54 +78,96 @@ class _BillCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: bill.isPaid ? Colors.green : Colors.red,
-          foregroundColor: Colors.white,
-          child: Text('${bill.dueDay}'),
-        ),
-        title: Text(
-          bill.name,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            decoration: bill.isPaid ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        subtitle: Text(
-          'Vencimento: dia ${bill.dueDay}',
-          style: const TextStyle(fontSize: 12),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        child: Row(
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'R\$ ${bill.value.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: bill.isPaid ? Colors.green : Colors.red,
-                    decoration: bill.isPaid ? TextDecoration.lineThrough : null,
-                  ),
-                ),
-              ],
+            // Avatar com dia do vencimento
+            CircleAvatar(
+              backgroundColor: bill.isPaid ? Colors.green : Colors.red,
+              foregroundColor: Colors.white,
+              radius: 24,
+              child: Text(
+                '${bill.dueDay}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
+            const SizedBox(width: 12),
+
+            // Informações da conta
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    bill.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      decoration: bill.isPaid ? TextDecoration.lineThrough : null,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'R\$ ${bill.value.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: bill.isPaid ? Colors.green : Colors.red,
+                      decoration: bill.isPaid ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Checkbox
             Checkbox(
               value: bill.isPaid,
               onChanged: (value) {
                 ref.read(billControllerProvider.notifier)
                     .togglePaid(bill.id!, value ?? false);
               },
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
             ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => _showDeleteDialog(context, ref),
+
+            // Ações (editar e excluir) em coluna
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: () => _navigateToEdit(context),
+                  borderRadius: BorderRadius.circular(20),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(Icons.edit, color: Colors.orange, size: 20),
+                  ),
+                ),
+                InkWell(
+                  onTap: () => _showDeleteDialog(context, ref),
+                  borderRadius: BorderRadius.circular(20),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(Icons.delete, color: Colors.red, size: 20),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _navigateToEdit(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditBillPage(bill: bill),
       ),
     );
   }
