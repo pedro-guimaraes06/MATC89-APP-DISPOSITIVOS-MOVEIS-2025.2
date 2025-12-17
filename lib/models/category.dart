@@ -1,6 +1,3 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'category.g.dart';
 
 // Modelo de dados para Categoria (1:N com Bill)
 class Category {

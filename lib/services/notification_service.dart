@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'notification_service.g.dart';
 
@@ -20,7 +22,7 @@ class NotificationService {
 
   void _onNotificationTap(NotificationResponse response) {
     // Handler para quando usuário toca na notificação
-    print('Notification tapped: ${response.payload}');
+    debugPrint('Notification tapped: ${response.payload}');
   }
 
   // Solicita permissão (Android 13+)
@@ -93,6 +95,6 @@ class NotificationService {
 
 // Provider do serviço de notificações
 @riverpod
-NotificationService notificationService(NotificationServiceRef ref) {
+NotificationService notificationService(Ref ref) {
   return NotificationService();
 }

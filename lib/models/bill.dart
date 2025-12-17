@@ -1,6 +1,3 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'bill.g.dart';
 
 // Modelo de dados para representar uma conta a pagar (N lado da relação 1:N)
 class Bill {

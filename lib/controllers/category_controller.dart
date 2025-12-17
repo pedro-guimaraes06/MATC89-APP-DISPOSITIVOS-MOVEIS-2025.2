@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category.dart';
 import '../repositories/category_repository.dart';
@@ -7,7 +8,7 @@ part 'category_controller.g.dart';
 
 // Provider para o repository
 @riverpod
-CategoryRepository categoryRepository(CategoryRepositoryRef ref) {
+CategoryRepository categoryRepository(Ref ref) {
   return CategoryRepository(Supabase.instance.client);
 }
 
@@ -65,7 +66,7 @@ class CategoryController extends _$CategoryController {
 
 // Provider para contar bills por categoria
 @riverpod
-Future<int> categoryBillCount(CategoryBillCountRef ref, String categoryId) async {
+Future<int> categoryBillCount(Ref ref, String categoryId) async {
   final repository = ref.watch(categoryRepositoryProvider);
   return await repository.countBills(categoryId);
 }

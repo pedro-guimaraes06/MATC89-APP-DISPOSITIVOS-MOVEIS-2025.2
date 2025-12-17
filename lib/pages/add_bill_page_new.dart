@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/bill_controller.dart';
-import '../controllers/category_controller.dart';
 import '../models/bill.dart';
 import '../services/notification_service.dart';
 
@@ -38,7 +37,7 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
 
     final bill = Bill(
       name: _nameController.text.trim(),
-      value: double.parse(_valueController.text.replace(',', '.')),
+      value: double.parse(_valueController.text.replaceAll(',', '.')),
       dueDay: int.parse(_dueDayController.text),
       categoryId: widget.categoryId,
     );
@@ -108,7 +107,7 @@ class _AddBillPageNewState extends ConsumerState<AddBillPageNew> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Por favor, informe o valor';
                   }
-                  final valueFormatted = value.replace(',', '.');
+                  final valueFormatted = value.replaceAll(',', '.');
                   if (double.tryParse(valueFormatted) == null) {
                     return 'Valor inválido';
                   }

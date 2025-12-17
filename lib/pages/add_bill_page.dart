@@ -44,8 +44,9 @@ class _AddBillPageState extends State<AddBillPage> {
     // Cria o objeto Bill
     final bill = Bill(
       name: _nameController.text.trim(),
-      value: double.parse(_valueController.text.replace(',', '.')),
+      value: double.parse(_valueController.text.replaceAll(',', '.')),
       dueDay: int.parse(_dueDayController.text),
+      categoryId: '', // Temporary empty category ID for legacy storage
     );
 
     // Salva no storage
@@ -102,12 +103,12 @@ class _AddBillPageState extends State<AddBillPage> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.attach_money),
                 ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Por favor, informe o valor';
                   }
-                  final valueFormatted = value.replace(',', '.');
+                  final valueFormatted = value.replaceAll(',', '.');
                   if (double.tryParse(valueFormatted) == null) {
                     return 'Valor inválido';
                   }

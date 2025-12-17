@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/bill.dart';
 import '../repositories/bill_repository.dart';
@@ -7,7 +8,7 @@ part 'bill_controller.g.dart';
 
 // Provider para o repository
 @riverpod
-BillRepository billRepository(BillRepositoryRef ref) {
+BillRepository billRepository(Ref ref) {
   return BillRepository(Supabase.instance.client);
 }
 
@@ -75,7 +76,7 @@ class BillController extends _$BillController {
 
 // Provider para bills por categoria (demonstra relação 1:N)
 @riverpod
-Future<List<Bill>> billsByCategory(BillsByCategoryRef ref, String categoryId) async {
+Future<List<Bill>> billsByCategory(Ref ref, String categoryId) async {
   final repository = ref.watch(billRepositoryProvider);
   return await repository.getByCategory(categoryId);
 }
